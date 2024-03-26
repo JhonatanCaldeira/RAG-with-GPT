@@ -10,23 +10,43 @@ load_dotenv(dotenv_path='components/.env')
 token = os.environ['BOT_TOKEN']
 
 msg_system = """
-Você é o mestre supremo das mesas de RPG, seu objetivo é: 
-1- Ajudar os jogadores com regras e dicas dos mais variados sistemas. 
-2- Ser cordial e se o jogador quiser bater papo você deve responde-lo 
-de forma cordial e puxar assunto com o mesmo.
-3- Você sempre irá responder no mesmo idioma em que for questionado!
-Se te perguntarem em Frances você responderá em Frances, por exemplo.
+Vous êtes le maître suprême des tables de jeu de rôle, votre but est : 
+1- Aider les joueurs avec des règles et des conseils des systèmes les plus variés. 
+3- Vous répondrez toujours dans la même langue! Si on te demande en Frances, 
+tu répondras en Frances, par exemple.
+"""
+
+casual_msg_system = """
+Tu es TheRealMaster.
+Tu es là pour interagir et badinet avec les utilisateurs du discord.
+Limite tes réponses à 2000 caractères maximum.
 """
 
 msg_summarization = """
-You are a highly skilled AI trained in language comprehension and summarization. 
-I would like you to read the following text and summarize it into a concise 
-abstract paragraph. Aim to retain the most important points, providing a 
-coherent and readable summary that could help a person understand the main 
-points of the discussion without needing to read the entire text. 
-Please avoid unnecessary details or tangential points.
-You need to generate the abstract paragraph in the same language of the original text.
+Vous êtes une IA hautement qualifiée formée à la compréhension et à la synthèse des langues. 
+J’aimerais que vous lisiez le texte suivant et que vous le résumiez 
+Objectif de conserver les points les plus importants, en fournissant un 
+Résumé cohérent et lisible qui pourrait aider une personne à comprendre le principal 
+les points de discussion sans avoir à lire le texte en entier. 
+Veuillez éviter les détails inutiles ou les points tangentiels.
+Vous devez générer le paragraphe abstrait dans la même langue que le texte original.
 """
+
+oracle_msg_system = """
+Tu vas classifier les questions que l'ont te pose en deux categories:
+- Recherche d'informations:
+L'utilisateur te pose une question très précise et/ou technique qui nécessite
+des informations en plus de tes connaissances actuelles.
+- Discussions et instructions:
+L'utilisateur cherche seulement à converser avec toi et te demande de générer
+des textes ou autres.
+Tu ne peux répondre que par '0' ou '1'. rien d'autres.
+Si la catégorie est Recherche d'informations,
+alors tu réponds 0 sinon tu réponds 1.
+"""
+
+oracle_conv = [{"role": "system", "content": oracle_msg_system}]
+
 
 # connect to discord
 intents = discord.Intents.all()
@@ -53,6 +73,7 @@ async def on_message(message):
             msg = str(message.content)
 
             if message.attachments:
+                #Checking the Images
                 if "image" in message.attachments[0].content_type:
                     content = [{"type":"text", 
                                 "text": re.sub("<@\d+>", "", msg),}]
@@ -64,6 +85,7 @@ async def on_message(message):
                     vision_input = [{"role": "user", "content": content}]
                     reply = openai_vision(vision_input)      
 
+                #Checking the PDF
                 elif "pdf" in message.attachments[0].content_type:
                     response, filepath = download_pdf_file(message.attachments[0].url)
                     if response:
@@ -75,18 +97,30 @@ async def on_message(message):
                         summarization.append({"role":"user", "content": pdf_text})
                         reply = openai_request(summarization)
                 
-            else:         
-                current_conv = [{"role":"system", "content": msg_system}]
-                current_conv.append({"role":"user", "content": msg})
+            else: 
+                msg = message.content
+                oracle_prompt = oracle_conv.copy()
+                oracle_prompt.append({"role": "user", "content": msg})
+                response_oracle = openai_request(oracle_prompt)
 
-                if len(msg) < 200:
+                # With RAG
+                if response_oracle == "0":        
+                    current_conv = [{"role":"system", "content": msg_system}]
+                    current_conv.append({"role":"user", "content": msg})
+
                     brave_output = brave_request(msg)
                     current_conv.append({"role":"system","content": 
-                                         str(brave_output["results"][:5])})
+                                        str(brave_output["results"][:5])})
                 
-                reply = openai_request(current_conv)
-                current_conv.append({"role":"assistant", "content":reply})
+                    reply = openai_request(current_conv)
+                
+                #Whitout RAG
+                else:
+                    current_conv = [{"role":"system", "content": casual_msg_system}]
+                    current_conv.append({"role":"user", "content": msg})
+                    reply = openai_request(current_conv)
 
+                
             await message.reply(reply, mention_author=True)
 
 client.run(token)
