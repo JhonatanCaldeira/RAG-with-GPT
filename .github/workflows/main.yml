@@ -29,4 +29,4 @@ jobs:
                 with:
                   file: ./Dockerfile
                   push: true
-                  tags: ${{ secrets.DOCKERHUB_USERNAME }}/clockbox:latest
+                  tags: ${{ secrets.DOCKERHUB_USERNAME }}/real-master-bot:latest
