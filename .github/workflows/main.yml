@@ -49,5 +49,5 @@ jobs:
                       sudo docker stop ${{ secrets.APP_NAME }}
                       sudo docker system prune -f
                       sudo docker build --tag=${{ secrets.APP_NAME }} .
-                      sudo docker run --name ${{ secrets.APP_NAME }}
+                      sudo docker run -d ${{ secrets.APP_NAME }}
                       ENDSSH
