@@ -45,12 +45,11 @@ jobs:
                 run: |
                       ssh -v -o StrictHostKeyChecking=no ${{ secrets.AZURE_SERVER_USER }}@${{ secrets.AZURE_SERVER_IP }} <<'ENDSSH'
 
-                      export ${{ secrets.API_BOT_TOKEN_NAME }}=${{ secrets.BOT_TOKEN }}
-                      export ${{ secrets.API_BRAVE_API_KEY_NAME }}=${{ secrets.BRAVE_API_KEY }}
-                      export ${{ secrets.API_OPENAI_API_TOKEN_NAME }}=${{ secrets.OPENAI_API_TOKEN }}
-
                       sudo docker stop ${{ secrets.APP_NAME }}
                       sudo docker system prune -f
                       sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/real-master-bot
-                      sudo docker run ${{ secrets.DOCKERHUB_USERNAME }}/real-master-bot
+
+                      sudo docker run -e BOT_TOKEN=${{ secrets.BOT_TOKEN }} \
+                      -e BRAVE_API_KEY=${{ secrets.BRAVE_API_KEY }} \
+                      -e OPENAI_API_TOKEN=${{ secrets.BRAVE_API_KEY }} ${{ secrets.DOCKERHUB_USERNAME }}/real-master-bot
                       ENDSSH
