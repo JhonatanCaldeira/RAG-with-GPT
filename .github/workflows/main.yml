@@ -48,6 +48,8 @@ jobs:
                       export BOT_TOKEN=${{ secrets.BOT_TOKEN }}
                       export BRAVE_API_KEY=${{ secrets.BRAVE_API_KEY }}
                       export OPENAI_API_TOKEN=${{ secrets.OPENAI_API_TOKEN }}
+                      sudo docker stop ${{ secrets.APP_NAME }}
+                      sudo docker system prune -f
                       sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/real-master-bot
                       sudo docker run -d ${{ secrets.DOCKERHUB_USERNAME }}/real-master-bot
                       ENDSSH
