@@ -7,7 +7,7 @@ from components.tools import download_pdf_file, get_pdf_text
 import re
 
 #load_dotenv(dotenv_path='components/.env')
-token = os.environ['BOT_TOKEN']
+token = os.getenv('BOT_TOKEN')
 
 msg_system = """
 Vous êtes le maître suprême des tables de jeu de rôle, votre but est : 
