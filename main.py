@@ -6,7 +6,7 @@ from components.brave_api import brave_request
 from components.tools import download_pdf_file, get_pdf_text
 import re
 
-load_dotenv(dotenv_path='components/.env')
+#load_dotenv(dotenv_path='components/.env')
 token = os.environ['BOT_TOKEN']
 
 msg_system = """

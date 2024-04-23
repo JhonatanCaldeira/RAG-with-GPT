@@ -4,7 +4,7 @@ import os
 
 def openai_request(conv):
 
-    load_dotenv(dotenv_path='.env')
+    #load_dotenv(dotenv_path='.env')
     client = OpenAI(api_key=os.environ.get("OPENAI_API_TOKEN"),)
 
     completion = client.chat.completions.create(
@@ -15,7 +15,7 @@ def openai_request(conv):
     return completion.choices[0].message.content
 
 def openai_vision(conv):
-    load_dotenv(dotenv_path='.env')
+    #load_dotenv(dotenv_path='.env')
     client = OpenAI(api_key=os.environ.get("OPENAI_API_TOKEN"),)
 
     response = client.chat.completions.create(
@@ -27,7 +27,7 @@ def openai_vision(conv):
     return response.choices[0].message.content
 
 def abstract_summary_extraction(conv):
-    load_dotenv(dotenv_path='.env')
+    #load_dotenv(dotenv_path='.env')
     client = OpenAI(api_key=os.environ.get("OPENAI_API_TOKEN"),)
 
     response = client.chat.completions.create(

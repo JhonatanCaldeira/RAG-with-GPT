@@ -4,7 +4,7 @@ from brave import Brave
 
 def brave_request(query):
     # Your Brave API key
-    load_dotenv(dotenv_path='.env')
+    #load_dotenv(dotenv_path='.env')
 
     api_key = os.getenv("BRAVE_API_KEY")
     brave = Brave(api_key)
